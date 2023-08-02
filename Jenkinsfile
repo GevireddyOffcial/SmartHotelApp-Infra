@@ -40,6 +40,8 @@ pipeline {
                     
                     // Push the changes
                     withCredentials([usernamePassword(credentialsId: env.CREDENTIALS_ID, usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
+                        sh "echo ${GIT_USERNAME}"
+                        sh "echo ${GIT_PASSWORD}"
                         sh "git push ${env.GIT_REPO_URL} ${env.GIT_BRANCH}"
                     }
                 }
