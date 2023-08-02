@@ -1,29 +1,46 @@
-node {
-    def app
-
-    stage('Clone repository') {
-      
-
-        checkout scm
+pipeline {
+    agent any
+    
+    environment {
+        GIT_REPO_URL = 'https://github.com/GevireddyOffcial/SmartHotelApp-Infra.git'  // Replace with your Git repository URL
+        GIT_BRANCH = 'main'  // Replace with the branch you want to push to
+        CREDENTIALS_ID = 'github'  // Replace with the ID of your Jenkins Git credentials
     }
-
-    stage('Update GIT') {
-            script {
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    withCredentials([usernamePassword(credentialsId: 'github', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                        //def encodedPassword = URLEncoder.encode("$GIT_PASSWORD",'UTF-8')
-                        sh "git config user.email gevi.reddy07@gmail.com"
-                        sh "git config user.name GevireddyOfficial"
-                        //sh "git switch master"
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    // Checkout the repository to a workspace
+                    git credentialsId: env.CREDENTIALS_ID, url: env.GIT_REPO_URL, branch: env.GIT_BRANCH
+                }
+            }
+        }
+        
+        stage('Update File') {
+            steps {
+                script {
+                    // Update the file content (e.g., appending a line)
                         sh "cat deployment.yaml"
                         sh "sed -i 's+gevireddyofficial/smarthotelapp.*+gevireddyofficial/smarthotelapp:${DOCKERTAG}+g' deployment.yaml"
                         sh "cat deployment.yaml"
-                        sh "git add ."
-                        sh "git commit -m 'Done by Jenkins Job changemanifest: ${env.BUILD_NUMBER}'"
-                        //sh "git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${GIT_USERNAME}/SmartHotelApp-Infra.git HEAD:main"
-                        sh "git push -u origin HEAD:main "
-      }
+                }
+            }
+        }
+        
+        stage('Commit and Push') {
+            steps {
+                script {
+                    // Commit the changes
+                    sh "git add ."
+                    sh "git commit -m 'Jenkins pipeline: Update file'"
+                    
+                    // Push the changes
+                    withCredentials([usernamePassword(credentialsId: env.CREDENTIALS_ID, usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
+                        sh "git push ${env.GIT_REPO_URL} ${env.GIT_BRANCH}"
+                    }
+                }
+            }
+        }
     }
-  }
-}
 }
