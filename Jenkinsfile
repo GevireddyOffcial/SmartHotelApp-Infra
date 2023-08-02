@@ -2,9 +2,9 @@ pipeline {
     agent any
     
     environment {
-        GIT_REPO_URL = 'https://github.com/GevireddyOffcial/SmartHotelApp-Infra.git'  // Replace with your Git repository URL
+        GIT_REPO_URL = 'git@github.com:GevireddyOffcial/SmartHotelApp-Infra.git'  // Replace with your Git repository URL
         GIT_BRANCH = 'main'  // Replace with the branch you want to push to
-        CREDENTIALS_ID = 'github'  // Replace with the ID of your Jenkins Git credentials
+        CREDENTIALS_ID = 'git-ssh-id'  // Replace with the ID of your Jenkins Git credentials
     }
     
     stages {
@@ -39,11 +39,8 @@ pipeline {
                     sh "git commit -m 'Jenkins pipeline: Update file'"
                     
                     // Push the changes
-                    withCredentials([usernamePassword(credentialsId: env.CREDENTIALS_ID, usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
-                        sh "echo ${GIT_USERNAME}"
-                        sh "echo ${GIT_PASSWORD}"
-                        sh "git config user.name;git config user.email"
-                        sh "git push ${env.GIT_REPO_URL} ${env.GIT_BRANCH}"
+                    withCredentials([sshUserPrivateKey(credentialsId: env.CREDENTIALS_ID, keyFileVariable: 'SSH_KEY')]) {
+                        sh "GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no -i $SSH_KEY' git push ${env.GIT_REPO_URL} ${env.GIT_BRANCH}"
                     }
                 }
             }
