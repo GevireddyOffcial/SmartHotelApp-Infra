@@ -21,6 +21,8 @@ pipeline {
             steps {
                 script {
                     // Update the file content (e.g., appending a line)
+                        sh "git config user.email gevi.reddy07@gmail.com"
+                        sh "git config user.name GevireddyOfficial"
                         sh "cat deployment.yaml"
                         sh "sed -i 's+gevireddyofficial/smarthotelapp.*+gevireddyofficial/smarthotelapp:${DOCKERTAG}+g' deployment.yaml"
                         sh "cat deployment.yaml"
@@ -32,6 +34,7 @@ pipeline {
             steps {
                 script {
                     // Commit the changes
+
                     sh "git add ."
                     sh "git commit -m 'Jenkins pipeline: Update file'"
                     
