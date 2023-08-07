@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: smart-app
-          image: gevireddyofficial/smarthotelapp:latest
+          image: gevireddyofficial/smarthotelapp:20
           ports:
             - containerPort: 80
